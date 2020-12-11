@@ -9,13 +9,32 @@
 import SwiftUI
 
 struct FilteredList: View {
+    var fetchRequest: FetchRequest<Singer>
+    
+    enum predicateType {
+        case beginsWith
+        case contains
+        case endsWith
+    }
+    
+    init(filter: String, sortDescriptors: [NSSortDescriptor], predicate: predicateType) {
+        var predicateString = ""
+        switch predicate {
+        case .beginsWith:
+            predicateString = "BEGINSWITH"
+        case .contains:
+            predicateString = "CONTAINS[c]"
+        case .endsWith:
+            predicateString = "ENDSWITH"
+        }
+        
+        fetchRequest = FetchRequest<Singer>(entity: Singer.entity(), sortDescriptors: sortDescriptors, predicate: NSPredicate(format: "lastName \(predicateString) %@", filter))
+    }
     var body: some View {
-        Text(/*@START_MENU_TOKEN@*/"Hello, World!"/*@END_MENU_TOKEN@*/)
+        List(fetchRequest.wrappedValue, id: \.self) { singer in
+            Text("\(singer.wrappedFirstName) \(singer.wrappedLastName)")
+        }
     }
 }
 
-struct FilteredList_Previews: PreviewProvider {
-    static var previews: some View {
-        FilteredList()
-    }
-}
+
